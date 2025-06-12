@@ -1,29 +1,30 @@
 # Levenshtein Arguments
 
-**Levenshtein Arguments** is a small Bash utility that helps improve the user experience of command-line applications by suggesting the closest matching argument or subcommand based on Levenshtein distance. This is useful in cases where users may mistype commands.
+**Levenshtein Arguments** is a Bash utility that suggests the closest valid arguments for a CLI app when users make typos.
 
 ## Features
 
-- Suggests the closest match from a predefined list of valid options
-- Accepts and preserves additional arguments
-- Does not execute the command automatically; the user can copy and run the suggested command
-- Pure Bash implementation with no external dependencies
+- Supports multiple fuzzy-typed arguments in one line
+- Suggests the corrected command without running it
+- Accepts and preserves all extra arguments (e.g. `--env dev`)
+- Written in pure Bash with no external dependencies
+- Easy to integrate into existing CLI wrappers
 
 ## Usage
 
 ```bash
-./levenshtein-arguments.sh <option> [extra arguments...]
+./levenshtein-arguments.sh <arg1> [arg2 ...] -- [extra arguments...]
 ```
-
 Example
 ```bash
-./levenshtein-arguments.sh srart --port 8080
+./levenshtein-arguments.sh srart stp -- --env dev
 ```
 
 Output:
 ```bash
 Suggested command:
-./myapp start --port 8080
+./myapp start stop --env dev
+
 ```
 
 Configuration
