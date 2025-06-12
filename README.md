@@ -31,6 +31,7 @@ Configuration
 
 The script has two sections that can be adjusted to fit your specific application:
 Base command
+
 ```bash
 base_command="./myapp"
 
