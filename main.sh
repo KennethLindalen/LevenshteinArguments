@@ -39,7 +39,7 @@ levenshtein() {
 # Configuration
 # ----------------------------
 
-base_command="./myapp"  # TODO: Write actual name of app
+base_command="./myapp"
 
 valid_options=(
   start
@@ -50,39 +50,51 @@ valid_options=(
   config
   help
   version
-) # TODO: Update with actual arguemnts for app
+)
 
 # ----------------------------
-# Input parsing
+# Parse input
 # ----------------------------
+
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <option> [args...]"
+  echo "Usage: $0 <arg1> [arg2 ...] [-- extra args...]"
   exit 1
 fi
 
-user_input="$1"
-shift
-extra_args=("$@")
+# Separate fuzzy args from passthrough args
+fuzzy_inputs=()
+passthrough_args=()
+seen_double_dash=0
 
-# ----------------------------
-# Find best match
-# ----------------------------
-declare -A distances
-for option in "${valid_options[@]}"; do
-  distances["$option"]="$(levenshtein "$user_input" "$option")"
+for arg in "$@"; do
+  if [[ "$arg" == "--" ]]; then
+    seen_double_dash=1
+    continue
+  fi
+  if [[ $seen_double_dash -eq 0 ]]; then
+    fuzzy_inputs+=("$arg")
+  else
+    passthrough_args+=("$arg")
+  fi
 done
 
-# Sort matches by distance
-mapfile -t sorted < <(
-  for option in "${!distances[@]}"; do
-    echo "$option ${distances[$option]}"
-  done | sort -k2 -n
-)
+# ----------------------------
+# Fuzzy match each input
+# ----------------------------
+resolved_args=()
 
-best_match=$(echo "${sorted[0]}" | awk '{print $1}')
+for input in "${fuzzy_inputs[@]}"; do
+  declare -A distances
+  for opt in "${valid_options[@]}"; do
+    distances["$opt"]="$(levenshtein "$input" "$opt")"
+  done
+
+  best_match=$(for opt in "${!distances[@]}"; do echo "$opt ${distances[$opt]}"; done | sort -k2 -n | head -n1 | awk '{print $1}')
+  resolved_args+=("$best_match")
+done
 
 # ----------------------------
 # Output suggestion
 # ----------------------------
-echo -e "\n\033[1mSuggested command:\033[0m"
-echo -e "\033[32m$base_command $best_match ${extra_args[*]}\033[0m"
+echo -e "\nSuggested command:"
+echo -e "$base_command ${resolved_args[*]} ${passthrough_args[*]}"
