@@ -10,6 +10,10 @@
 - Written in pure Bash with no external dependencies
 - Easy to integrate into existing CLI wrappers
 
+
+## TODO:
+  - Caching of already calculated strings, reducing memory usage
+  - 
 ## Usage
 
 ```bash
